@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-flight_watch.py — alert when a military aircraft is near Melkweg, Bilthoven, NL.
+flight_watch.py — alert when a military aircraft is near your location.
 
 Cloud version: runs on GitHub Actions on a schedule, so it works whether
 or not any of your own devices are on. Sends a push notification via
-ntfy.sh (install the ntfy app and subscribe to NTFY_TOPIC below).
+ntfy.sh.
 
 Data source: adsb.fi open data API (free, no key needed)
   https://github.com/adsbfi/opendata
@@ -13,6 +13,12 @@ This script does ONE check per run and exits. flight_watch_state.json
 (used to avoid re-alerting on the same aircraft within COOLDOWN_SECONDS)
 is committed back to the repo by the GitHub Actions workflow after each
 run, since GitHub Actions runners don't keep disk state between runs.
+
+This repo is PUBLIC (so GitHub Actions minutes are free/unlimited, which
+5-minute polling needs). Because of that, your home coordinates and ntfy
+topic are NOT hardcoded here — they're read from GitHub Actions secrets
+(Settings -> Secrets and variables -> Actions) so they never appear in
+this public code or in commit history. See SETUP.md for the exact names.
 """
 
 import json
@@ -21,17 +27,16 @@ import time
 import urllib.request
 import urllib.error
 
-# ---- Configuration you may want to tweak ----------------------------------
+# ---- Configuration you may want to tweak -----------------------------
 
-LAT = 52.121177          # Melkweg, Bilthoven, NL
-LON = 5.183542
-RADIUS_NM = 13.5          # ~25 km (1 NM = 1.852 km)
+# Read from GitHub Actions secrets (set via the workflow's `env:` block),
+# never hardcoded here since this repo is public.
+LAT = float(os.environ["FLIGHTWATCH_LAT"])
+LON = float(os.environ["FLIGHTWATCH_LON"])
+NTFY_TOPIC = os.environ["FLIGHTWATCH_NTFY_TOPIC"]
 
-# Pick something unguessable — anyone who knows this topic name can read
-# your alerts, since ntfy.sh topics are public by name.
-# Install the ntfy app (iOS/Android) or use https://ntfy.sh/<topic> in a
-# browser, and subscribe to this same topic to receive pushes.
-NTFY_TOPIC = "bilthoven-milwatch-1fb9c4b8"
+RADIUS_NM = 13.5          # ~25 km (1 NM = 1.852 km) — not sensitive, kept in code
+
 NTFY_URL = f"https://ntfy.sh/{NTFY_TOPIC}"
 
 # Don't re-alert on the same aircraft (by hex code) more than once per
