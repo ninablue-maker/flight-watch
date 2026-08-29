@@ -35,7 +35,7 @@ LAT = float(os.environ["FLIGHTWATCH_LAT"])
 LON = float(os.environ["FLIGHTWATCH_LON"])
 NTFY_TOPIC = os.environ["FLIGHTWATCH_NTFY_TOPIC"]
 
-RADIUS_NM = 250          # ~25 km (1 NM = 1.852 km) — not sensitive, kept in code
+RADIUS_NM = 13.5          # ~25 km (1 NM = 1.852 km) — not sensitive, kept in code
 
 NTFY_URL = f"https://ntfy.sh/{NTFY_TOPIC}"
 
