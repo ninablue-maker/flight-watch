@@ -2,10 +2,12 @@ name: Flight Watch
 
 on:
   schedule:
-    # Every 10 minutes. GitHub may occasionally delay a run under load,
-    # but this stays comfortably within the free Actions minutes on a
-    # private repo (roughly 700-1000 min/month used out of 2000 free).
-    - cron: '*/10 * * * *'
+    # Every 5 minutes. This repo is PUBLIC, so GitHub Actions minutes are
+    # free and unlimited here — on a private repo this interval would
+    # cost real money (each run is billed as a full minute regardless of
+    # actual runtime, and 5-minute polling adds up to ~8,700 min/month,
+    # well past the 2,000 free minutes private repos get).
+    - cron: '*/5 * * * *'
   workflow_dispatch: {}
     # ^ lets you trigger a manual test run from the Actions tab any time.
 
@@ -19,6 +21,12 @@ permissions:
 jobs:
   check:
     runs-on: ubuntu-latest
+    env:
+      # Pulled from this repo's encrypted secrets (Settings -> Secrets and
+      # variables -> Actions), never hardcoded, since this repo is public.
+      FLIGHTWATCH_LAT: ${{ secrets.FLIGHTWATCH_LAT }}
+      FLIGHTWATCH_LON: ${{ secrets.FLIGHTWATCH_LON }}
+      FLIGHTWATCH_NTFY_TOPIC: ${{ secrets.FLIGHTWATCH_NTFY_TOPIC }}
     steps:
       - uses: actions/checkout@v4
 
